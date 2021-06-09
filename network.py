@@ -6,11 +6,26 @@
 # Aplicación para agilizar proceso de asignación de Direcciones IP en el equipo
 # Nota: se necesita tener el nombre de la conexión de area local sin tildes
 
+'''
+determinar tiempo por secuencia
+$ python3 -m timeit -n 3 "import time; time.sleep(3)"
+3 loops, best of 5: 3 sec per loop
+
+'''
+
 from tkinter import *
 import os, subprocess
 import tkinter
 import tkinter.font as tk_font
 import time
+
+#https://realpython.com/python-sleep/
+import threading
+
+
+#ping
+import platform    # For getting the operating system name
+
 
 FONT = "Consolas 10"
 retval = os.getcwd()
@@ -85,7 +100,9 @@ def VerInterfaces():
 def verip():
     outf = open("out.txt", "w+")
     errf = open("error.txt", "w+")
-    subprocess.call('netsh interface ip show addresses name=\"Conexion de area local\"', shell=True, stdout=outf,
+    #subprocess.call('netsh interface ip show addresses name=\"Conexion de area local\"', shell=True, stdout=outf,
+    # stderr=errf)
+    subprocess.call('netsh interface ip show addresses', shell=True, stdout=outf,
                     stderr=errf)
     outf.close()
     errf.close()
@@ -200,11 +217,56 @@ def ip_x():
     time.sleep(3)
     verip()
 
+def ping_online(host):
+    """
+    Returns True if host (str) responds to a ping request.
+    Remember that a host may not respond to a ping (ICMP) request even if the host name is valid.
+    """
+
+    # Option for the number of packets as a function of
+    param = '-n' if platform.system().lower()=='windows' else '-c'
+
+    # Building the command. Ex: "ping -c 1 google.com"
+    command = ['ping', param, '1', host]
+
+    return subprocess.call(command) == 0
+
+def ping_box(x):
+    #https://stackoverflow.com/questions/2953462/pinging-servers-in-python
+
+    button_ok = Button(vent, text="ok", bg='green', width=2, height=2)
+    button_nok = Button(vent, text="nok", bg='red', width=2, height=2)
+
+    result = ping_online("8.8.8.8")
+
+    x_value = 140
+
+    if result==True:
+        button_ok.place(x=x, y=200)
+    else:
+        button_nok.place(x=x, y=200)
+
+def ping_extendido(qty=5):
+    #default initial x:140
+    x_value=140
+    for i in range(qty):
+        ping_box(x_value)
+        #event = threading.Event()
+        #event.wait(1)
+        x_value=x_value+25
+
+def repeticion_ping_extendido(x=5):
+    for i in range(x):
+        ping_extendido()
+        event = threading.Event()
+        event.wait(1)
+        vent.mainloop()
+
 
 def google():
     outf = open("out.txt", "w+")
     errf = open("error.txt", "w+")
-    subprocess.call('ping 8.8.8.8 -n 3', shell=True, stdout=outf, stderr=errf)
+    subprocess.call('ping 8.8.8.8 -n 1', shell=True, stdout=outf, stderr=errf)
     outf.close()
     errf.close()
     fd = open("out.txt", "r")
@@ -312,8 +374,10 @@ def arp():
     VentanaTemp(output)
 
 
+
+
 vent = Tk()
-vent.geometry("530x200")
+vent.geometry("530x300")
 vent.title("SOLES IP")
 # centrar(vent)
 JustAbajo(vent)
@@ -344,6 +408,10 @@ bot8.place(x=10, y=100)
 # **************VER Interfaces********************
 bot2 = Button(vent, text="Ver Interfaces", command=VerInterfaces, width=15, height=2)
 bot2.place(x=10, y=50)
+
+# **************PING ONLINE********************
+bot8 = Button(vent, text="Ping Online", command=repeticion_ping_extendido, width=15, height=2)
+bot8.place(x=10, y=200)
 
 # **************VER IP********************
 bot2 = Button(vent, text="Ver IP", command=verip, width=15, height=2, background="powder blue")
