@@ -251,17 +251,10 @@ def ping_extendido(qty=5):
     x_value=140
     for i in range(qty):
         ping_box(x_value)
-        #event = threading.Event()
-        #event.wait(1)
-        x_value=x_value+25
-
-def repeticion_ping_extendido(x=5):
-    for i in range(x):
-        ping_extendido()
         event = threading.Event()
         event.wait(1)
-        vent.mainloop()
-
+        x_value=x_value+25
+        vent.update()
 
 def google():
     outf = open("out.txt", "w+")
@@ -410,7 +403,7 @@ bot2 = Button(vent, text="Ver Interfaces", command=VerInterfaces, width=15, heig
 bot2.place(x=10, y=50)
 
 # **************PING ONLINE********************
-bot8 = Button(vent, text="Ping Online", command=repeticion_ping_extendido, width=15, height=2)
+bot8 = Button(vent, text="Ping Online", command=ping_extendido, width=15, height=2)
 bot8.place(x=10, y=200)
 
 # **************VER IP********************
