@@ -31,6 +31,20 @@ FONT = "Consolas 10"
 retval = os.getcwd()
 print(retval)
 
+def find_text_variable(variable,text):
+    print(text)
+    value = text.find[start_char:number_of_chars]
+    print("value:", value)
+    return value
+
+
+def extract_text(file,start_char,number_of_chars):
+    file = open(file, "r+")
+    text=file.read()
+    print(text)
+    text_extracted=text[start_char:number_of_chars]
+    print("value:", value)
+    return text_extracted
 
 def VentanaTemp(archivo):
     temp = Toplevel()
@@ -217,7 +231,7 @@ def ip_x():
     time.sleep(3)
     verip()
 
-def ping_online(host):
+def ping_online(host="8.8.8.8"):
     """
     Returns True if host (str) responds to a ping request.
     Remember that a host may not respond to a ping (ICMP) request even if the host name is valid.
@@ -237,6 +251,8 @@ def ping_box(x):
     button_ok = Button(vent, text="ok", bg='green', width=2, height=2)
     button_nok = Button(vent, text="nok", bg='red', width=2, height=2)
 
+    ping_time = find_text_variable()
+
     result = ping_online("8.8.8.8")
 
     x_value = 140
@@ -251,17 +267,10 @@ def ping_extendido(qty=5):
     x_value=140
     for i in range(qty):
         ping_box(x_value)
-        #event = threading.Event()
-        #event.wait(1)
-        x_value=x_value+25
-
-def repeticion_ping_extendido(x=5):
-    for i in range(x):
-        ping_extendido()
         event = threading.Event()
         event.wait(1)
-        vent.mainloop()
-
+        x_value=x_value+25
+        vent.update()
 
 def google():
     outf = open("out.txt", "w+")
@@ -410,8 +419,12 @@ bot2 = Button(vent, text="Ver Interfaces", command=VerInterfaces, width=15, heig
 bot2.place(x=10, y=50)
 
 # **************PING ONLINE********************
-bot8 = Button(vent, text="Ping Online", command=repeticion_ping_extendido, width=15, height=2)
-bot8.place(x=10, y=200)
+bot9 = Button(vent, text="Ping Online", command=ping_extendido, width=15, height=2)
+bot9.place(x=10, y=200)
+
+# **************PING ONLINE********************
+bot10 = Button(vent, text="Find Text", command=lambda: extract_text("open.txt",1,4), width=15, height=2)
+bot10.place(x=10, y=250)
 
 # **************VER IP********************
 bot2 = Button(vent, text="Ver IP", command=verip, width=15, height=2, background="powder blue")
