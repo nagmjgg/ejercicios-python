@@ -32,6 +32,21 @@ retval = os.getcwd()
 print(retval)
 
 
+def find_text_variable(variable,text):
+    #print(text)
+    value = variable.find(text)
+    #print("value:", value)
+    return value
+
+
+def extract_text(file,start_char,number_of_chars):
+    file = open(file, "r+")
+    text=file.read()
+    #print(text)
+    text_extracted=text[start_char:start_char + number_of_chars]
+    #print("value:", value)
+    return text_extracted
+
 def VentanaTemp(archivo):
     temp = Toplevel()
     temp.geometry("600x200")
@@ -217,7 +232,7 @@ def ip_x():
     time.sleep(3)
     verip()
 
-def ping_online(host):
+def ping_online(host="8.8.8.8"):
     """
     Returns True if host (str) responds to a ping request.
     Remember that a host may not respond to a ping (ICMP) request even if the host name is valid.
@@ -229,38 +244,74 @@ def ping_online(host):
     # Building the command. Ex: "ping -c 1 google.com"
     command = ['ping', param, '1', host]
 
-    return subprocess.call(command) == 0
+    result = subprocess.run(command,check=True, stdout=subprocess.PIPE, universal_newlines=True)
+    return result.stdout
 
 def ping_box(x):
     #https://stackoverflow.com/questions/2953462/pinging-servers-in-python
 
-    button_ok = Button(vent, text="ok", bg='green', width=2, height=2)
-    button_nok = Button(vent, text="nok", bg='red', width=2, height=2)
+    button_ok = Label(vent, text="ok", bg='green', width=2, height=2)
+    button_nok = Label(vent, text="nok", bg='red', width=2, height=2)
+
+
 
     result = ping_online("8.8.8.8")
+    #print(result[1:8])
+    text="tiempo="
+
+    print(result)
+    print(result.find(text))
+
+    #if result.find(text) == True:
+    find_text = result.find(text)
+    count_text = len(text)
+    start_char = find_text + count_text
+    find_final = result.find("ms ")
+    time = result[ start_char : find_final]
+    text = Label(vent, text= time, width=2, height=2)
+
+
+    #print(result)
+    #print(find_text , " " , count_text , " " , start_char , " " , time)
+    #print(type(time))
 
     x_value = 140
 
-    if result==True:
+    if int(time) > 0:
         button_ok.place(x=x, y=200)
+        text.place(x=x,y=230)
+
     else:
         button_nok.place(x=x, y=200)
 
-def ping_extendido(qty=5):
+
+
+def ping_extendido(qty=10):
     #default initial x:140
     x_value=140
-    for i in range(qty):
-        ping_box(x_value)
-        #event = threading.Event()
-        #event.wait(1)
-        x_value=x_value+25
 
-def repeticion_ping_extendido(x=5):
-    for i in range(x):
-        ping_extendido()
+    i=0
+    while i < qty:
+        ping_box(x_value)
         event = threading.Event()
         event.wait(1)
-        vent.mainloop()
+        x_value=x_value+25
+        vent.update()
+
+        flag = int(ping_flag.get())
+        print(flag)
+        print(i)
+        print(qty)
+
+        tmp_qty = qty-1
+        if flag == 1 and i == tmp_qty:
+            print("igual")
+            i=0
+            x_value = 140
+        else:
+            i += 1
+
+        print(i)
 
 
 def google():
@@ -410,8 +461,15 @@ bot2 = Button(vent, text="Ver Interfaces", command=VerInterfaces, width=15, heig
 bot2.place(x=10, y=50)
 
 # **************PING ONLINE********************
-bot8 = Button(vent, text="Ping Online", command=repeticion_ping_extendido, width=15, height=2)
-bot8.place(x=10, y=200)
+bot9 = Button(vent, text="Ping Online", command=ping_extendido, width=15, height=2)
+bot9.place(x=10, y=200)
+ping_flag=IntVar()
+check_ping = Checkbutton(vent, text="Active", variable=ping_flag)
+check_ping.place(x=400, y=200)
+
+# **************PING ONLINE********************
+bot10 = Button(vent, text="Find Text", command=lambda: extract_text("open.txt",1,4), width=15, height=2)
+bot10.place(x=10, y=250)
 
 # **************VER IP********************
 bot2 = Button(vent, text="Ver IP", command=verip, width=15, height=2, background="powder blue")
